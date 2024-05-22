@@ -198,8 +198,11 @@ def con_psql(host = "192.168.1.128",db = "anime",query = "SELECT * FROM anime;")
     print("Query: \n",query)
     cur.execute(query)
 
-    res = cur.fetchall()
-    print(res)
+    try:
+        res = cur.fetchall()
+        print(res)
+    except:
+        res = []
 
     cur.close()
     conn.close()
@@ -208,7 +211,7 @@ def con_psql(host = "192.168.1.128",db = "anime",query = "SELECT * FROM anime;")
 
 import mariadb
 
-def con_mariadb():
+def con_mariadb(query = "SELECT * FROM time;"):
     host = "192.168.1.145"
     db = "time"
     user = "azulito"
@@ -222,10 +225,13 @@ def con_mariadb():
     )
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM time;")
+    cur.execute(query)
 
-    res = cur.fetchall()
-    print(res)
+    try:
+        res = cur.fetchall()
+        print(res)
+    except:
+        res = []
 
     cur.close()
     conn.close()
@@ -293,3 +299,5 @@ def stats(request):
     
     #return HttpResponse(res)
     return HttpResponse(result.to_html())
+
+def estadistica(request):
