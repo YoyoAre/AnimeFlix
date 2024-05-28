@@ -32,8 +32,12 @@ class postgres:
         self.db = db
         self.user = "azulito"
         self.pwd = "1234"
-
+        self.custom("""select dblink_connect('usuarios_dblink','host=127.168.1.128 
+        user=azulito password=1234 dbname=usuarios');""")
+        print("A")
         #dblink a otro postgres
+    def complemento(self):
+        print("B")
         self.custom("""select dblink_connect('usuarios_dblink','host=127.168.1.128 
         user=azulito password=1234 dbname=usuarios');""")
         self.custom("""
@@ -86,16 +90,18 @@ class postgres:
             host = self.host,dbname= self.db,
             user= self.user,password=self.pwd,port="5432"
         )
+        conn.autocommit = True
         cur = conn.cursor()
         print("Query: \n",query)
         cur.execute(query)
 
         try:
             res = cur.fetchall()
-            print(res)
+            #print(res)
         except:
             res = []
-        conn.commit()
+        print(res)
+        #conn.commit()
         cur.close()
         conn.close()
 
@@ -108,6 +114,23 @@ class postgres:
             extra = f"where id = {user_id};"
         return self.custom("select * from usuarios_distribuido "+extra)
     
+print("--------------------")
+print("1")
 con1 = postgres()
+print("--------------------")
+print("2")
 con1.custom()
+print("--------------------")
+print("3")
+con1.custom("call inizializar();")
+print("--------------------")
+print("4")
+con1.custom("select current_user, session_user;")
+print("--------------------")
+print("5")
+con1.custom("select definition from pg_views where viewname = 'usuarios_distribuidos';")
+print("--------------------")
+
+
+print("6")
 con1.get_usuario()

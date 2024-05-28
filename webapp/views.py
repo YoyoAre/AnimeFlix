@@ -13,7 +13,10 @@ from django.http import HttpResponse
 User = get_user_model()
 
 def webapp(request):
+    print("post:",request.POST)
+    print("Get:",request.GET)
     messages.get_messages(request)  # Obtener mensajes almacenados
+    print("Mensajes:",messages)
     all_animes = Animes.objects.all()
     paginator = Paginator(all_animes, 9)  # Mostrar 9 animes por página
 
@@ -203,7 +206,7 @@ def con_psql(host = "192.168.1.128",db = "anime",query = "SELECT * FROM anime;")
         print(res)
     except:
         res = []
-
+    conn.commit()
     cur.close()
     conn.close()
 
@@ -300,4 +303,34 @@ def stats(request):
     #return HttpResponse(res)
     return HttpResponse(result.to_html())
 
+def estadistica_mod(request):
+    #todos = Animes.objects.all()
+    todos = Usuario.objects.all()
+    print(todos)
+    for ent in todos:
+        print(ent.username,ent.id,ent.is_superuser)
+        #print(ent.id_anime,ent.nombre_anime)
+        #animes = con_psql("localhost","anime",
+        #f"insert into anime values ({ent.id_anime},'{ent.nombre_anime}')")
+        #con_psql("localhost","usuarios",
+        #f"insert into usuarios values ((select count(id) from usuarios) +1,'{ent.username}');")
+    #return HttpResponse("Se imprimio animes")
+    return render(request, 'webapp/estadisticas.html', {'lista': todos})
+from .dblink import postgres;
 def estadistica(request):
+    try:
+        user = int(request.GET["user"]) #si se hizo una busqueda por mes, el get da el numero del mes a buscar
+    except:
+        user = 0 #sino, lo marca como 0
+    try:
+        anime = int(request.GET["anime"])#lo mismo para un año de busqueda
+    except:
+        anime = 0
+    con1 = postgres()
+    usuarios = con1.get_usuario()
+    animes = con1.get_anime()
+
+    vistas = con1.join(user,anime)
+    print(vistas)
+    return render(request, 'webapp/estadisticas.html', {'usuarios_l':usuarios,
+    'animes_l':animes,'vista_l':vistas})

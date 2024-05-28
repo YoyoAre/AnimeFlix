@@ -1,0 +1,51 @@
+{% extends 'webapp/base.html' %}
+
+{% load static %}
+
+{% block head %}
+  <!--Aqui va el style-->
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div>
+            Buscar por:
+            <form action="/estadistica/" method="get" class="row">
+              <select id="User" name="user" class="form-select col" aria-label="Seleccionar user">
+                  <option value="0">Cualquier usuario</option>
+                  {% for usuario in usuarios_l %}
+                  <option value={{usuario.0}}>{{usuario.1}}</option>
+                  {% endfor %}
+              </select>
+              <select id="Anime" name="anime" class="form-select col" aria-label="Seleccionar anime">
+                  <option value="0">Cualquier anime</option>
+                  {% for anime in animes_l %}
+                  <option value={{anime.0}}>{{anime.1}}</option>
+                  {% endfor %}
+              </select>
+              <button type="submit" class="btn btn-primary col">Buscar</button>
+          </form>
+          </div>
+
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Fecha</th>
+                        <th>Anime</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in vista_l %}
+                    <tr>
+                        <th>{{row.0}}   </th>
+                        <th>{{row.1}}   </th>
+                        <th>{{row.2}}   </th>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+  </div>
+{% endblock %}
