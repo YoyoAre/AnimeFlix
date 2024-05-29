@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 from django.conf import settings
 from .forms import CambiarInformacionForm
 from django.http import HttpResponse
+from datetime import datetime
 
 User = get_user_model()
 
@@ -26,7 +27,18 @@ def webapp(request):
 
 
 def anime_detail(request, nombre_anime):
+    date = datetime.now()
+    date = f"{date.day}-{date.month}-{date.year} {date.hour}:{date.minute}:{date.second}"
+    print(date)
+    user = request.user
+    if user.username:
+        id = user.id
+    else:
+        id = 999999
     anime = get_object_or_404(Animes, nombre_anime=nombre_anime)
+    #print(anime,anime.id_anime,anime.nombre_anime)
+    con1 = postgres()
+    con1.custom(f"insert into tiempo_distribuido values ({id},'{date}',{anime.id_anime})")
     episodios = Episodios.objects.filter(episodio_anime=anime)
     
     return render(request, 'webapp/anime_detail.html', {'anime': anime, 'episodios': episodios})
@@ -160,6 +172,7 @@ def login_view(request):
     return render(request, 'webapp/login.html')
 
 def register_view(request):
+    con1 = postgres()
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password1']
@@ -175,6 +188,8 @@ def register_view(request):
             user = Usuario(username=username, first_name=nombre, last_name=apellido, email=email)
             user.set_password(password)  # Establecer la contraseña utilizando set_password()
             user.save()
+            print(username)
+            con1.insert_usuarios(username,user.id)
             messages.success(request, 'Registro exitoso. Inicia sesión con tu nueva cuenta.')
             return redirect('login')  # Cambia 'login' con la URL de tu página de inicio de sesión
 
@@ -314,10 +329,21 @@ def estadistica_mod(request):
         #f"insert into anime values ({ent.id_anime},'{ent.nombre_anime}')")
         #con_psql("localhost","usuarios",
         #f"insert into usuarios values ((select count(id) from usuarios) +1,'{ent.username}');")
+        #f"insert into usuarios values (ent.id,'{ent.username}');")
+        
     #return HttpResponse("Se imprimio animes")
     return render(request, 'webapp/estadisticas.html', {'lista': todos})
 from .dblink import postgres;
 def estadistica(request):
+    date = datetime.now()
+    print(date)
+    user = request.user
+    print(user,user.username,user.id)
+    if user.username:
+        print("existe el user")
+    else:
+        print("no existe")
+
     try:
         user = int(request.GET["user"]) #si se hizo una busqueda por mes, el get da el numero del mes a buscar
     except:
@@ -331,6 +357,6 @@ def estadistica(request):
     animes = con1.get_anime()
 
     vistas = con1.join(user,anime)
-    print(vistas)
+    #print(vistas)
     return render(request, 'webapp/estadisticas.html', {'usuarios_l':usuarios,
     'animes_l':animes,'vista_l':vistas})

@@ -30,13 +30,29 @@ class postgres:
             extra = ";"
         else:
             extra = f"where id = {user_id};"
-        return self.custom("select * from usuarios_distribuido "+extra)
+        return self.custom("select id,nombre from usuarios_distribuido "+extra)
     def get_anime(self, anime_id = 0):
         if anime_id==0:
             extra = ";"
         else:
             extra = f"where id = {anime_id};"
-        return self.custom("select * from anime"+extra)
+        return self.custom("select id,anime from anime"+extra)
+
+    def insert_usuarios(self,nombre,id=0):
+        if id==0:
+            nuevo = "(select count(id) from usuarios) +1"
+        else:
+            nuevo = id
+        query = f"""
+        select * from dblink_exec(                                                                                                             
+         'host=127.168.1.128                                                                                                               
+         user=azulito                                                                                                                      
+         password=1234                                                                                                                     
+         dbname=usuarios'                                                                                                                  
+         ,                                                                                                                                 
+         'insert into usuarios values ({nuevo},''{nombre}'')'); 
+        """
+        return self.custom(query)
 
     def join(self, user_id = 0, anime_id = 0):
         donde = ""
